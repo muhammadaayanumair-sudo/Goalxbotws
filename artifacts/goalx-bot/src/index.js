@@ -79,12 +79,12 @@ async function main() {
       logger.warn(`[Bot] AiProviderRouter failed to init (non-fatal): ${aiErr.message}`);
     }
 
-    // Login to Discord
-    await client.login(process.env.DISCORD_TOKEN);
-
-    // Schedulers start after ready event (see events/ready.js)
+   // Create the scheduler manager before login so it's guaranteed to exist
+    // by the time the 'ready' event fires (see events/ready.js).
     client.schedulerManager = new SchedulerManager(client);
 
+    // Login to Discord — schedulers are actually started after ready event.
+    await client.login(process.env.DISCORD_TOKEN);
   } catch (err) {
     logger.error('[Bot] Fatal startup error:', err.message);
     process.exit(1);
