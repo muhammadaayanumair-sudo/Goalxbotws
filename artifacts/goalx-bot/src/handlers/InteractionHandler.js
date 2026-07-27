@@ -70,10 +70,10 @@ class InteractionHandler {
         const missingPerms = command.permissions.filter(
           (p) => !interaction.member?.permissions.has(p)
         );
-        if (missingPerms.length > 0) {
+      if (missingPerms.length > 0) {
           return interaction.reply({
             embeds: [EmbedFactory.error('Missing Permissions', `You need: ${missingPerms.join(', ')}`)],
-            ephemeral: true,
+            flags: 64,
           });
         }
       }
@@ -82,7 +82,7 @@ class InteractionHandler {
       if (command.ownerOnly && interaction.user.id !== process.env.BOT_OWNER_ID) {
         return interaction.reply({
           embeds: [EmbedFactory.error('Owner Only', 'This command is restricted to the bot owner.')],
-          ephemeral: true,
+          flags: 64,
         });
       }
 
