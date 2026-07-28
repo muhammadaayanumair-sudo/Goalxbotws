@@ -24,7 +24,7 @@ module.exports = {
         .setDescription(
           'Add GoalX to your Discord server to get live football scores, stats, news, and more!\n\n' +
           `[**➕ Click here to Invite GoalX**](${inviteUrl})\n\n` +
-          '[💬 Join Support Server](https://discord.gg/AHJ5Vr6FUC) · ' +
+          '[💬 Join Support Server](https://discord.gg/FX3yCJ3rwx) · ' +
           '[⭐ Vote on Top.gg](https://top.gg/bot/goalx)'
         );
 
