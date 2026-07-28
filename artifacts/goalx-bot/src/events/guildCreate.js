@@ -67,7 +67,7 @@ module.exports = {
           '> `/feature-configuration transfers` — transfer alerts every 2 h\n' +
           '> `/feature-configuration goals` — goal notifications\n\n' +
           '**2️⃣ Explore commands** — use `/help` for the full list of 100+ slash commands.\n\n' +
-          '**3️⃣ Share GoalX** — [invite it to another server](' + inviteUrl + ') or [join the support server](https://discord.gg/AHJ5Vr6FUC).\n\n' +
+          '**3️⃣ Share GoalX** — [invite it to another server](' + inviteUrl + ') or [join the support server](https://discord.gg/FX3yCJ3rwx).\n\n' +
           '*The GoalX role has been created automatically and cannot be deleted — it manages the bot\'s permissions.*'
         )
         .setFooter({ text: '⚽ GoalX v1.9.0 · Football at your fingertips' })
