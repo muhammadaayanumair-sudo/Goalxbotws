@@ -39,7 +39,7 @@ module.exports = {
             name: '🔗 Links',
             value: [
               '[🤖 Add to Server](https://discord.com/oauth2/authorize?client_id=1517258426898448394&permissions=8&scope=bot+applications.commands)',
-              '[💬 Support Server](https://discord.gg/RVFtDPENpW)',
+              '[💬 Support Server](https://discord.gg/FX3yCJ3rwx)',
               '[⭐ Vote on Top.gg](https://top.gg/bot/goalx)',
               '[📖 Documentation](https://docs.google.com/document/d/1PkQ0wu7bAa-dEyAGYTRh3_jQRyZjT5bfNecTvmpnFPI/edit?usp=sharing)',
               '[🔒 Privacy Policy](https://docs.google.com/document/d/14ZfCc_Qr68_TQHEB1bdJ1gUFWnWasM9yIqGVoU3gS3U/edit?usp=sharing)',
@@ -48,7 +48,7 @@ module.exports = {
             inline: false,
           }
         )
-        .setFooter({ text: 'GoalX v1.0.0 • Discord.js v14 • Powered by Groq ⚡' });
+        .setFooter({ text: 'GoalX v1.0.0 • Discord.js v14 • Powered by Goalx ⚡' });
 
       
       const refreshRow = new ActionRowBuilder().addComponents(
