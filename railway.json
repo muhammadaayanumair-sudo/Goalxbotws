@@ -1,4 +1,5 @@
 {
-  "packageManager": "pnpm",
-  "installCommand": "pnpm install --no-frozen-lockfile"
+  "packageManager": "pnpm@10.5.2",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "startCommand": "pnpm --filter ./artifacts/* start"
 }
