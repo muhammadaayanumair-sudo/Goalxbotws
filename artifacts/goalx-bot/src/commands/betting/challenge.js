@@ -1,6 +1,6 @@
 'use strict';
 
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const { EmbedFactory } = require('../../utils/embed');
 const { formatCoins } = require('../../utils/formatters');
 const { FootballApiManager } = require('../../services/FootballApiManager');
@@ -93,31 +93,84 @@ module.exports = {
           { name: '⚔️ Expires', value: `<t:${Math.floor(duel.expiresAt.getTime() / 1000)}:R>` },
         ]);
 
-        const acceptBtn  = new ButtonBuilder().setCustomId(`duel_accept_hint:${duel._id}`).setLabel('✅ Accept').setStyle(ButtonStyle.Success);
+        const acceptBtn  = new ButtonBuilder().setCustomId(`duel_accept:${duel._id}`).setLabel('✅ Accept').setStyle(ButtonStyle.Success);
         const declineBtn = new ButtonBuilder().setCustomId(`duel_decline:${duel._id}`).setLabel('❌ Decline').setStyle(ButtonStyle.Danger);
         const row = new ActionRowBuilder().addComponents(acceptBtn, declineBtn);
 
         const msg = await interaction.editReply({
-          content: `${opponent} — you've been challenged! Use \`/accept id:${duel._id} prediction:<your score>\` or tap Decline below.`,
+          content: `${opponent} — you've been challenged! Tap **Accept** and enter your scoreline prediction, or tap **Decline**.`,
           embeds: [embed],
           components: [row],
         });
 
         const collector = msg.createMessageComponentCollector({
           filter: (i) =>
-            ['duel_accept_hint', 'duel_decline'].some((a) => i.customId.startsWith(a)) &&
+            ['duel_accept', 'duel_decline'].some((a) => i.customId.startsWith(a)) &&
             i.user.id === opponent.id,
           time: 24 * 60 * 60 * 1000,
-          max: 1,
         });
 
         collector.on('collect', async (i) => {
           const action = i.customId.split(':')[0];
-          if (action === 'duel_accept_hint') {
-            await i.reply({
-              content: `To accept, run:\n\`/accept id:${duel._id} prediction:2-1\` (replace with your actual score prediction)`,
-              ephemeral: true,
-            });
+
+          if (action === 'duel_accept') {
+            const modal = new ModalBuilder()
+              .setCustomId(`duel_accept_modal:${duel._id}`)
+              .setTitle('Accept Duel — Your Prediction');
+
+            const predictionInput = new TextInputBuilder()
+              .setCustomId('prediction')
+              .setLabel('Your scoreline prediction (e.g. 2-1)')
+              .setStyle(TextInputStyle.Short)
+              .setPlaceholder('2-1')
+              .setMinLength(3)
+              .setMaxLength(5)
+              .setRequired(true);
+
+            await i.showModal(modal.addComponents(new ActionRowBuilder().addComponents(predictionInput)));
+
+            let modalSubmit;
+            try {
+              modalSubmit = await i.awaitModalSubmit({
+                filter: (m) => m.customId === `duel_accept_modal:${duel._id}` && m.user.id === opponent.id,
+                time: 5 * 60 * 1000,
+              });
+            } catch {
+              return; // modal timed out — button still there, they can tap Accept again
+            }
+
+            const prediction = modalSubmit.fields.getTextInputValue('prediction').trim();
+            if (!/^\d{1,2}-\d{1,2}$/.test(prediction)) {
+              await modalSubmit.reply({
+                content: '❌ Prediction must be a scoreline like `2-1` or `0-0`. Tap **Accept** again to retry.',
+                ephemeral: true,
+              });
+              return;
+            }
+
+            try {
+              await modalSubmit.deferUpdate();
+              const accepted = await DuelService.acceptChallenge(duel._id, opponent.id, prediction);
+
+              const acceptedEmbed = EmbedFactory.bet(
+                'Duel Accepted! ⚔️',
+                `The duel is on! Winner is decided when **${accepted.homeTeam} vs ${accepted.awayTeam}** finishes.\n`
+              );
+              EmbedFactory.addFields(acceptedEmbed, [
+                { name: '⚔️ Total Pot', value: formatCoins(accepted.stake * 2), inline: true },
+                { name: `🎯 ${interaction.user.username}'s Prediction`, value: `\`${accepted.challengerPrediction}\``, inline: true },
+                { name: `🎯 ${opponent.username}'s Prediction`, value: `\`${accepted.opponentPrediction}\``, inline: true },
+              ]);
+
+              await interaction.editReply({
+                content: `⚔️ Duel accepted between ${interaction.user} and ${opponent}!`,
+                embeds: [acceptedEmbed],
+                components: [],
+              });
+              collector.stop('resolved');
+            } catch (err) {
+              await modalSubmit.followUp({ content: `❌ ${err.message}`, ephemeral: true }).catch(() => {});
+            }
           } else {
             await i.deferUpdate();
             try {
@@ -126,6 +179,7 @@ module.exports = {
                 embeds: [EmbedFactory.warning('Duel Declined', `**${opponent.username}** declined the challenge. ${interaction.user.username}'s stake has been refunded.`)],
                 components: [],
               });
+              collector.stop('resolved');
             } catch (err) {
               await i.followUp({ content: `❌ ${err.message}`, ephemeral: true });
             }
