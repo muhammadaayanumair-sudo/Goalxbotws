@@ -39,7 +39,11 @@ async function resolveMatchByName(api, query) {
   try {
     teams = await api.searchTeam(team1);
   } catch (err) {
-    throw new Error(`Could not search for **"${team1}"**: ${err.message}`);
+    // The underlying API call itself failed (bad/expired key, rate limit,
+    // network issue) — this is NOT a spelling problem, so don't say it is.
+    throw new Error(
+      `⚠️ Football data service is temporarily unavailable right now (${err.message}). Please try again in a minute.`
+    );
   }
 
   if (!teams?.length) {
@@ -50,6 +54,7 @@ async function resolveMatchByName(api, query) {
 
   const now = Date.now();
   const windowMs = 7 * 24 * 60 * 60 * 1000; // ±7 days
+  let sawApiError = false;
 
   // Try the top 3 results in case the name is ambiguous (e.g. "United")
   for (const teamResult of teams.slice(0, 3)) {
@@ -60,6 +65,7 @@ async function resolveMatchByName(api, query) {
     try {
       fixtures = await api.getFixturesByTeam(teamId, 20);
     } catch {
+      sawApiError = true;
       continue;
     }
     if (!fixtures?.length) continue;
@@ -79,6 +85,12 @@ async function resolveMatchByName(api, query) {
         return f;
       }
     }
+  }
+
+  if (sawApiError) {
+    throw new Error(
+      `⚠️ Football data service is temporarily unavailable right now. Please try again in a minute.`
+    );
   }
 
   throw new Error(
