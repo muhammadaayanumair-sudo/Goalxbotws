@@ -144,7 +144,7 @@ module.exports = {
 
       embed.addFields({
         name: '🔗 Links',
-        value: '[Invite Bot](https://discord.com/oauth2/authorize?client_id=1517258426898448394&permissions=8&scope=bot+applications.commands) · [Support Server](https://discord.gg/RVFtDPENpW) · [Documentation](https://docs.google.com/document/d/1PkQ0wu7bAa-dEyAGYTRh3_jQRyZjT5bfNecTvmpnFPI/edit?usp=sharing) · [Top.gg](https://top.gg)',
+        value: '[Invite Bot](https://discord.com/oauth2/authorize?client_id=1517258426898448394&permissions=8&scope=bot+applications.commands) · [Support Server](https://discord.gg/FX3yCJ3rwx) · [Documentation](https://docs.google.com/document/d/1PkQ0wu7bAa-dEyAGYTRh3_jQRyZjT5bfNecTvmpnFPI/edit?usp=sharing) · [Top.gg](https://top.gg)',
         inline: false,
       });
 
