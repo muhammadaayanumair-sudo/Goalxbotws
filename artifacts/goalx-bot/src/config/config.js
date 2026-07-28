@@ -208,7 +208,7 @@ const config = {
   // commands/events again. Override SUPPORT_SERVER_URL in the environment
   // whenever the invite changes — no code edits required.
   links: {
-    supportServer: process.env.SUPPORT_SERVER_URL || ''https://discord.gg/FX3yCJ3rwx',
+    supportServer: process.env.SUPPORT_SERVER_URL || 'https://discord.gg/FX3yCJ3rwx',
   },
   webhooks: {
     error: process.env.ERROR_WEBHOOK_URL,
