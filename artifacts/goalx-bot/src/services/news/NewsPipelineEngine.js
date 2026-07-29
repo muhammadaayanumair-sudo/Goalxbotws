@@ -20,16 +20,19 @@ class NewsPipelineEngine {
     this.aiRouter = aiRouter;
     this.cache = cache;
 
-    this.rejectionKeywords = [
-      'nfl', 'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
-      'baseball', 'hockey', 'rugby', 'golf', 'olympics', 'basketball',
-      'movie', 'movies', 'film', 'actor', 'actress', 'celebrity', 'celebrities',
-      'music', 'album', 'song', 'concert', 'award show', 'grammy', 'oscar',
-      'politics', 'election', 'government', 'president', 'minister', 'war',
-      'geopolitical', 'economy', 'crypto', 'bitcoin', 'stock market',
-      'tiktok', 'viral', 'influencer', 'onlyfans', 'fashion', 'lifestyle',
-    ];
-
+   this.rejectionKeywords = [
+  'nfl', 'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
+  'baseball', 'hockey', 'rugby', 'golf', 'olympics', 'basketball',
+  'super bowl', 'world series', 'march madness', 'touchdown', 'quarterback',
+  'home run', 'ncaa', 'college football', 'national football league',
+  'nhl', 'mlb', 'nascar', 'pga tour', 'stanley cup', 'wnba', 'nba draft',
+  'movie', 'movies', 'film', 'actor', 'actress', 'celebrity', 'celebrities',
+  'music', 'album', 'song', 'concert', 'award show', 'grammy', 'oscar',
+  'politics', 'election', 'government', 'president', 'minister', 'war',
+  'geopolitical', 'economy', 'crypto', 'bitcoin', 'stock market',
+  'tiktok', 'viral', 'influencer', 'onlyfans', 'fashion', 'lifestyle',
+];
+    
     this.acceptanceKeywords = [
       'football', 'soccer', 'premier league', 'la liga', 'serie a', 'bundesliga',
       'ligue 1', 'champions league', 'europa league', 'conference league',
