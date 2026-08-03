@@ -81,11 +81,10 @@ class NewsPipelineEngine {
   hardReject(article) {
     const text = `${article.title} ${article.description || ''} ${article.source || ''}`.toLowerCase();
 
-    for (const kw of this.rejectionKeywords) {
-      if (text.includes(kw)) {
-        logger.debug(`[NewsPipeline] Hard rejected by keyword "${kw}": ${article.title}`);
-        return false;
-      }
+    const hasFootballSignal = this.acceptanceKeywords.some((kw) => text.includes(kw));
+    if (!hasFootballSignal) {
+      logger.debug(`[NewsPipeline] Hard rejected — no football signal found: ${article.title}`);
+      return false;
     }
 
     return true;
