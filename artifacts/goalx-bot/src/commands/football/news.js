@@ -8,13 +8,10 @@ const {
 } = require('discord.js');
 const { EmbedFactory } = require('../../utils/embed');
 const { NewsService } = require('../../services/news/NewsService');
+const { NewsPipelineEngine } = require('../../services/news/NewsPipelineEngine');
 const { truncate } = require('../../utils/formatters');
 const { logger } = require('../../utils/logger');
 
-/**
- * Builds the news embed given a title and article list — shared by the
- * initial reply and the refresh-button handler so both stay in sync.
- */
 function buildNewsEmbed(title, articles) {
   const embed = EmbedFactory.news(title, `*${articles.length} articles — updated live from NewsAPI.org*\n`);
 
@@ -55,6 +52,7 @@ module.exports = {
   try {
       await interaction.deferReply();
       const newsService = new NewsService(client.cache);
+      const pipeline = new NewsPipelineEngine(client.aiRouter, client.cache);
       const searchQuery = interaction.options.getString('search');
       const type        = interaction.options.getString('type') || 'latest';
 
@@ -89,6 +87,8 @@ module.exports = {
           }
         }
 
+        articles = await pipeline.process(articles, { query: searchQuery || title, limit: 8 });
+
         if (!articles.length) {
           return interaction.editReply({
             embeds: [
@@ -102,7 +102,6 @@ module.exports = {
 
         const embed = buildNewsEmbed(title, articles);
 
-        // Quick-access buttons
         const sources = [...new Set(articles.slice(0, 5).map((a) => a.source))];
         const row = new ActionRowBuilder().addComponents(
           new ButtonBuilder().setCustomId('news_refresh').setLabel('🔄 Refresh').setStyle(ButtonStyle.Secondary)
@@ -119,7 +118,6 @@ module.exports = {
 
         await interaction.editReply({ embeds: [embed], components: [row] });
 
-        // Refresh collector — rebuilds the embed with fresh data, same helper
         const msg = await interaction.fetchReply();
         const collector = msg.createMessageComponentCollector({
           filter: (i) => i.customId === 'news_refresh' && i.user.id === interaction.user.id,
@@ -129,9 +127,10 @@ module.exports = {
 
         collector.on('collect', async (i) => {
           await i.deferUpdate();
-          const fresh = searchQuery
+          let fresh = searchQuery
             ? await newsService.searchNews(searchQuery + ' football')
             : await newsService.getLatestNews(8);
+          fresh = await pipeline.process(fresh, { query: searchQuery || title, limit: 8 });
 
           await i.editReply({ embeds: [buildNewsEmbed(title, fresh)], components: [row] });
         });
