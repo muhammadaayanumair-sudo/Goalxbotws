@@ -21,11 +21,25 @@ class NewsPipelineEngine {
     this.cache = cache;
 
    this.rejectionKeywords = [
-  'nfl', 'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
-  'baseball', 'hockey', 'rugby', 'golf', 'olympics', 'basketball',
-  'super bowl', 'world series', 'march madness', 'touchdown', 'quarterback',
-  'home run', 'ncaa', 'college football', 'national football league',
-  'nhl', 'mlb', 'nascar', 'pga tour', 'stanley cup', 'wnba', 'nba draft',
+  // American football
+  'nfl', 'nfl draft', 'nfl news', 'american football', 'gridiron',
+  'super bowl', 'quarterback', 'touchdown', 'touchdowns', 'ncaa',
+  'college football', 'national football league', 'nfc', 'afc',
+  'nfl playoffs', 'nfl combine', 'pro bowl', 'field goal', 'punter',
+  'wide receiver', 'linebacker', 'nfl team', 'nfl player',
+  // Rugby
+  'rugby', 'rugby league', 'rugby union', 'six nations', 'super rugby',
+  'rugby world cup', 'try line', 'tries', 'scrum', 'lineout', 'all blacks',
+  'springboks', 'wallabies', 'premiership rugby', 'top 14', 'rugby sevens',
+  // Other sports
+  'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
+  'baseball', 'hockey', 'golf', 'olympics', 'basketball',
+  'world series', 'march madness',
+  'home run', 'nhl', 'mlb', 'nascar', 'pga tour', 'stanley cup', 'wnba',
+  'nba draft', 'american', 'boxing', 'wrestling', 'wwe', 'badminton',
+  'volleyball', 'snooker', 'darts', 'cycling', 'motogp', 'horse racing',
+  'athletics', 'swimming', 'gymnastics',
+  // Non-sport / off-topic
   'movie', 'movies', 'film', 'actor', 'actress', 'celebrity', 'celebrities',
   'music', 'album', 'song', 'concert', 'award show', 'grammy', 'oscar',
   'politics', 'election', 'government', 'president', 'minister', 'war',
@@ -36,11 +50,19 @@ class NewsPipelineEngine {
     this.acceptanceKeywords = [
       'football', 'soccer', 'premier league', 'la liga', 'serie a', 'bundesliga',
       'ligue 1', 'champions league', 'europa league', 'conference league',
-      'world cup', 'euros', 'euro', 'copa america', 'uefa', 'fifa',
-      'transfer', 'signing', 'contract', 'loan', 'medical', 'done deal',
-      'manager', 'sack', 'appointed', 'lineup', 'fixture', 'kickoff',
-      'goal', 'penalty', 'var', 'referee', 'standings', 'table',
+      'world cup', 'euros', 'euro 2024', 'euro 2028', 'copa america', 'uefa', 'fifa',
+      'concacaf', 'afcon', 'caf champions league', 'mls', 'eredivisie',
+      'primeira liga', 'scottish premiership', 'championship',
+      'transfer', 'signing', 'contract extension', 'loan move', 'medical',
+      'done deal', 'here we go', 'release clause', 'buy-out clause',
+      'football manager', 'football club', 'football coach', 'sacked as manager',
+      'appointed manager', 'starting lineup', 'football fixture', 'kickoff',
+      'football match', 'football goal', 'penalty kick', 'var decision',
+      'referee decision', 'league table', 'points table', 'clean sheet',
+      'hat-trick', 'assist', 'striker', 'midfielder', 'winger', 'centre-back',
+      'goalkeeper', 'football club', 'football stadium', 'football derby',
     ];
+
 
     this.trustedDomains = new Set([
       'espn.com', 'espn.co.uk', 'bbc.com', 'bbcsport.com', 'bbc.co.uk/sport',
