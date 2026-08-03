@@ -20,33 +20,33 @@ class NewsPipelineEngine {
     this.aiRouter = aiRouter;
     this.cache = cache;
 
-   this.rejectionKeywords = [
-  // American football
-  'nfl', 'nfl draft', 'nfl news', 'american football', 'gridiron',
-  'super bowl', 'quarterback', 'touchdown', 'touchdowns', 'ncaa',
-  'college football', 'national football league', 'nfc', 'afc',
-  'nfl playoffs', 'nfl combine', 'pro bowl', 'field goal', 'punter',
-  'wide receiver', 'linebacker', 'nfl team', 'nfl player',
-  // Rugby
-  'rugby', 'rugby league', 'rugby union', 'six nations', 'super rugby',
-  'rugby world cup', 'try line', 'tries', 'scrum', 'lineout', 'all blacks',
-  'springboks', 'wallabies', 'premiership rugby', 'top 14', 'rugby sevens',
-  // Other sports
-  'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
-  'baseball', 'hockey', 'golf', 'olympics', 'basketball',
-  'world series', 'march madness',
-  'home run', 'nhl', 'mlb', 'nascar', 'pga tour', 'stanley cup', 'wnba',
-  'nba draft', 'american', 'boxing', 'wrestling', 'wwe', 'badminton',
-  'volleyball', 'snooker', 'darts', 'cycling', 'motogp', 'horse racing',
-  'athletics', 'swimming', 'gymnastics',
-  // Non-sport / off-topic
-  'movie', 'movies', 'film', 'actor', 'actress', 'celebrity', 'celebrities',
-  'music', 'album', 'song', 'concert', 'award show', 'grammy', 'oscar',
-  'politics', 'election', 'government', 'president', 'minister', 'war',
-  'geopolitical', 'economy', 'crypto', 'bitcoin', 'stock market',
-  'tiktok', 'viral', 'influencer', 'onlyfans', 'fashion', 'lifestyle',
-];
-    
+    this.rejectionKeywords = [
+      // American football
+      'nfl', 'nfl draft', 'nfl news', 'american football', 'gridiron',
+      'super bowl', 'quarterback', 'touchdown', 'touchdowns', 'ncaa',
+      'college football', 'national football league', 'nfc', 'afc',
+      'nfl playoffs', 'nfl combine', 'pro bowl', 'field goal', 'punter',
+      'wide receiver', 'linebacker', 'nfl team', 'nfl player',
+      // Rugby
+      'rugby', 'rugby league', 'rugby union', 'six nations', 'super rugby',
+      'rugby world cup', 'try line', 'tries', 'scrum', 'lineout', 'all blacks',
+      'springboks', 'wallabies', 'premiership rugby', 'top 14', 'rugby sevens',
+      // Other sports
+      'nba', 'cricket', 'tennis', 'formula 1', 'f1', 'esports', 'ufc', 'mma',
+      'baseball', 'hockey', 'golf', 'olympics', 'basketball',
+      'world series', 'march madness',
+      'home run', 'nhl', 'mlb', 'nascar', 'pga tour', 'stanley cup', 'wnba',
+      'nba draft', 'american', 'boxing', 'wrestling', 'wwe', 'badminton',
+      'volleyball', 'snooker', 'darts', 'cycling', 'motogp', 'horse racing',
+      'athletics', 'swimming', 'gymnastics',
+      // Non-sport / off-topic
+      'movie', 'movies', 'film', 'actor', 'actress', 'celebrity', 'celebrities',
+      'music', 'album', 'song', 'concert', 'award show', 'grammy', 'oscar',
+      'politics', 'election', 'government', 'president', 'minister', 'war',
+      'geopolitical', 'economy', 'crypto', 'bitcoin', 'stock market',
+      'tiktok', 'viral', 'influencer', 'onlyfans', 'fashion', 'lifestyle',
+    ];
+
     this.acceptanceKeywords = [
       'football', 'soccer', 'premier league', 'la liga', 'serie a', 'bundesliga',
       'ligue 1', 'champions league', 'europa league', 'conference league',
@@ -62,7 +62,6 @@ class NewsPipelineEngine {
       'hat-trick', 'assist', 'striker', 'midfielder', 'winger', 'centre-back',
       'goalkeeper', 'football club', 'football stadium', 'football derby',
     ];
-
 
     this.trustedDomains = new Set([
       'espn.com', 'espn.co.uk', 'bbc.com', 'bbcsport.com', 'bbc.co.uk/sport',
@@ -80,6 +79,13 @@ class NewsPipelineEngine {
 
   hardReject(article) {
     const text = `${article.title} ${article.description || ''} ${article.source || ''}`.toLowerCase();
+
+    for (const kw of this.rejectionKeywords) {
+      if (text.includes(kw)) {
+        logger.debug(`[NewsPipeline] Hard rejected by keyword "${kw}": ${article.title}`);
+        return false;
+      }
+    }
 
     const hasFootballSignal = this.acceptanceKeywords.some((kw) => text.includes(kw));
     if (!hasFootballSignal) {
@@ -209,7 +215,6 @@ class NewsPipelineEngine {
     const desc = (article.description || '').trim();
     if (!desc) return '';
 
-    // Bold fees, numbers, and key terms
     let paragraph = desc
       .replace(/(€[\d.,]+\s*(M|K|B)?)/gi, '**$1**')
       .replace(/(\$[\d.,]+\s*(M|K|B)?)/gi, '**$1**')
@@ -219,7 +224,6 @@ class NewsPipelineEngine {
       paragraph = `${paragraph.slice(0, 379)}…`;
     }
 
-    // Interactive closing prompt based on article type
     const lower = article.title.toLowerCase();
     let cta = 'Let us know your thoughts in the comments! ⚽';
     if (lower.includes('transfer') || lower.includes('signing')) {
@@ -240,11 +244,9 @@ class NewsPipelineEngine {
   async process(articles, { query = 'football breaking news', limit = 5 } = {}) {
     if (!Array.isArray(articles) || articles.length === 0) return [];
 
-    // Stage 1
     let passed = articles.filter((a) => this.hardReject(a));
     logger.info(`[NewsPipeline] Stage 1 hard reject: ${articles.length} → ${passed.length}`);
 
-    // Stage 2
     if (this.aiRouter?.huggingface?.configured) {
       const classified = await Promise.all(
         passed.map(async (a) => ({ a, ok: await this.classify(a) }))
@@ -253,7 +255,6 @@ class NewsPipelineEngine {
       logger.info(`[NewsPipeline] Stage 2 HF classify: ${classified.length} → ${passed.length}`);
     }
 
-    // Stage 3
     if (this.aiRouter?.exa?.configured) {
       const verified = await Promise.all(
         passed.map(async (a) => ({ a, ok: await this.verify(a) }))
@@ -262,11 +263,9 @@ class NewsPipelineEngine {
       logger.info(`[NewsPipeline] Stage 3 Exa verify: ${verified.length} → ${passed.length}`);
     }
 
-    // Stage 4
     passed = await this.rerank(passed, query);
     logger.info(`[NewsPipeline] Stage 4 Cohere rerank: ${passed.length} articles ordered`);
 
-    // Stage 5
     const formatted = passed.slice(0, limit).map((a) => this.format(a));
     return formatted;
   }
